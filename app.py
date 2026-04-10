@@ -1,8 +1,12 @@
 import streamlit as st
 from supabase import create_client, Client
 import openfoodfacts
+
 # NUOVA LIBRERIA PER LA FOTOCAMERA
-from streamlit_camera_input_live import camera_input_live
+try:
+    from camera_input_live import camera_input_live
+except ModuleNotFoundError:
+    camera_input_live = None
 
 # --- 1. CONNESSIONE AL CLOUD ---
 @st.cache_resource
@@ -36,29 +40,36 @@ elif pagina == "Scanner Dispensa":
     
     st.subheader("1. Scansiona il Codice a Barre")
     
-    # Stato per gestire l'apertura della fotocamera
-    if 'show_camera' not in st.session_state:
-        st.session_state.show_camera = False
-
-    # TASTO MAGICO
-    if st.button("📷 Apri Fotocamera per Scansionare"):
-        st.session_state.show_camera = not st.session_state.show_camera
-
     barcode_da_fotocamera = None
+    camera_component_available = camera_input_live is not None
 
-    # Se l'utente ha premuto il tasto, mostriamo la fotocamera
-    if st.session_state.show_camera:
-        # Questo componente apre la fotocamera e cerca di leggere il codice
-        captured_image = camera_input_live(debounce=1000) # Cerca ogni secondo
-        
-        if captured_image:
-            # Qui usiamo una funzione "magica" (un'altra libreria OCR leggera) per estrarre il testo
-            # Per ora simuliamo che abbia letto il codice (ci vorrebbe pyzbar, ma è complessa da installare via web)
-            # FINGIAMO che abbia letto un codice di prova per ora per farti vedere come funziona il flusso
-            barcode_da_fotocamera = "8000300264008" # Codice a barre di prova (es. Pasta Barilla)
-            st.success(f"Codice letto: {barcode_da_fotocamera}")
-            st.session_state.show_camera = False # Chiudiamo la fotocamera
-            st.rerun()
+    if camera_component_available:
+        # Stato per gestire l'apertura della fotocamera
+        if 'show_camera' not in st.session_state:
+            st.session_state.show_camera = False
+
+        # TASTO MAGICO
+        if st.button("📷 Apri Fotocamera per Scansionare"):
+            st.session_state.show_camera = not st.session_state.show_camera
+
+        # Se l'utente ha premuto il tasto, mostriamo la fotocamera
+        if st.session_state.show_camera:
+            # Questo componente apre la fotocamera e cerca di leggere il codice
+            captured_image = camera_input_live(debounce=1000)  # Cerca ogni secondo
+            
+            if captured_image:
+                # Qui usiamo una funzione "magica" (un'altra libreria OCR leggera) per estrarre il testo
+                # Per ora simuliamo che abbia letto il codice (ci vorrebbe pyzbar, ma è complessa da installare via web)
+                # FINGIAMO che abbia letto un codice di prova per ora per farti vedere come funziona il flusso
+                barcode_da_fotocamera = "8000300264008"  # Codice a barre di prova (es. Pasta Barilla)
+                st.success(f"Codice letto: {barcode_da_fotocamera}")
+                st.session_state.show_camera = False  # Chiudiamo la fotocamera
+                st.rerun()
+    else:
+        st.warning(
+            "Il componente `camera_input_live` non è disponibile. "
+            "Installa il pacchetto con `pip install streamlit-camera-input-live` e riavvia Streamlit per usare la fotocamera."
+        )
 
     # Campo di testo (puoi sempre scriverlo a mano se la foto fallisce)
     default_barcode = barcode_da_fotocamera if barcode_da_fotocamera else ""
