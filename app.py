@@ -57,13 +57,15 @@ elif pagina == "Scanner Dispensa":
             # Questo componente apre la fotocamera e cerca di leggere il codice
             captured_image = camera_input_live(
                 debounce=1000,
-                show_controls=False,
+                show_controls=True,
+                start_label="Avvia fotocamera",
+                stop_label="Ferma fotocamera",
                 height=420,
                 width=360,
                 key="scanner_camera",
             )  # Cerca ogni secondo
 
-            st.caption("Mantieni la finestra aperta e attendi qualche istante: la cattura parte automaticamente quando la fotocamera è pronta.")
+            st.caption("Clicca \"Avvia fotocamera\" se il feed non parte da solo e attendi qualche secondo dopo il consenso.")
             
             if captured_image:
                 # Qui usiamo una funzione "magica" (un'altra libreria OCR leggera) per estrarre il testo
