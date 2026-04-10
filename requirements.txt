@@ -1,2 +1,3 @@
 supabase
 openfoodfacts
+streamlit-camera-input-live
