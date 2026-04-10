@@ -1,3 +1,2 @@
 supabase
 openfoodfacts
-streamlit-barcode-scanner
